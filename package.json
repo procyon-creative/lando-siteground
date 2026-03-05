@@ -1,0 +1,27 @@
+{
+  "name": "@nick/lando-siteground",
+  "version": "0.1.0",
+  "description": "Lando recipe and tooling for WordPress sites hosted on SiteGround.",
+  "main": "index.js",
+  "license": "GPL-3.0-or-later",
+  "keywords": [
+    "lando",
+    "wordpress",
+    "siteground",
+    "recipe",
+    "plugin"
+  ],
+  "scripts": {
+    "lint": "echo \"no lint configured\"",
+    "test": "node ./node_modules/mocha/bin/mocha \"test/**/*.spec.js\""
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "lando": {},
+  "dependencies": {},
+  "devDependencies": {
+    "chai": "^4.5.0",
+    "mocha": "^10.4.0"
+  }
+}

@@ -1,0 +1,12 @@
+name: lando-siteground
+id: siteground
+version: 0.1.0
+description: Lando plugin for WordPress sites hosted on SiteGround.
+keywords:
+  - lando
+  - wordpress
+  - siteground
+  - recipe
+entry: index.js
+dependencies:
+  - wordpress

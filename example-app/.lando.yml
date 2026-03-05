@@ -1,0 +1,25 @@
+name: my-siteground-site
+recipe: siteground
+config:
+  php: '8.3'
+  webroot: .
+
+  # The environment (directory name under /home/<user>/www/) to pull/push from
+  env: mysite.com
+
+  # SiteGround SSH connection
+  # Find these in SiteGround Site Tools > Devs > SSH Keys Manager
+  host: your-server.siteground.biz
+  user: your-ssh-username
+
+  # Path is auto-derived as /home/<user>/www/<env>
+  # Override per-environment if needed:
+  # connection:
+  #   staging.mysite.com:
+  #     path: /home/your-user/www/staging.mysite.com
+
+events:
+  post-pull:
+    - appserver: echo "Pull complete! You may want to run search-replace."
+  post-push:
+    - appserver: echo "Push complete!"

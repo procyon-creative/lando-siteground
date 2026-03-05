@@ -1,0 +1,8 @@
+name: sg-e2e-test
+recipe: siteground
+config:
+  php: '8.3'
+  webroot: .
+  env: test-site.com
+  host: localhost
+  user: testuser

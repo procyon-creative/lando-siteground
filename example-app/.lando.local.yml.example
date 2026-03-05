@@ -1,0 +1,6 @@
+# Copy this file to .lando.local.yml and update with your details.
+# Do NOT check .lando.local.yml into version control.
+config:
+  # Override SSH connection per developer if needed
+  host: your-server.siteground.biz
+  user: your-ssh-username
