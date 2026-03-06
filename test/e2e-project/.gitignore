@@ -1,0 +1,6 @@
+.lando.local.yml
+.lando.user.yml
+wp-*
+*.php
+*.html
+*.txt

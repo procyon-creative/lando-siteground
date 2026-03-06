@@ -8,3 +8,10 @@ package-lock.json
 .vscode
 coverage
 .nyc_output
+test-results
+test/e2e-project/.tmp
+test/e2e-project/db.sql
+test/e2e-project/wp-*
+test/e2e-project/*.php
+test/e2e-project/*.html
+test/e2e-project/*.txt

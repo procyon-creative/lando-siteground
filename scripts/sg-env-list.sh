@@ -18,6 +18,9 @@ fi
 
 SSH_PORT="${LANDO_SG_SSH_PORT:-18765}"
 SSH_CMD="ssh -p ${SSH_PORT} -o StrictHostKeyChecking=accept-new -o ConnectTimeout=10"
+if [[ -n "$LANDO_SG_SSH_KEY" ]]; then
+  SSH_CMD="${SSH_CMD} -i ${LANDO_SG_SSH_KEY} -o IdentitiesOnly=yes"
+fi
 REMOTE="${LANDO_SG_SSH_USER}@${LANDO_SG_SSH_HOST}"
 CURRENT_ENV="${LANDO_SG_ENV}"
 WWW_ROOT="/home/${LANDO_SG_SSH_USER}/www"

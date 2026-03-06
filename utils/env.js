@@ -29,7 +29,7 @@ exports.resolveEnv = (app, options = {}) => {
  * - Port: 18765
  * - Host: <hostname from config>
  * - User: <username from config>
- * - Path: /home/<user>/www/<env>  (derived from user + env name)
+ * - Path: /home/<user>/www/<env>/public_html  (derived from user + env name)
  *
  * Per-environment overrides come from config.connection[env] which should
  * be placed in .lando.local.yml (not checked in).
@@ -40,13 +40,19 @@ exports.resolveConnection = (app, env) => {
   const envConnection = connections[env] || {};
 
   const user = recipeCfg.user || '';
-  const defaultPath = (user && env) ? `/home/${user}/www/${env}` : '';
+  const defaultPath = (user && env) ? `/home/${user}/www/${env}/public_html` : '';
+
+  // Resolve SSH key path. Lando mounts keys at /user/.ssh/<name>.
+  // config.key should be just the key filename (e.g., "procyon").
+  const keyName = recipeCfg.key || '';
+  const keyPath = keyName ? `/user/.ssh/${keyName}` : '';
 
   const defaults = {
     host: recipeCfg.host || '',
     user,
     port: 18765,
     path: defaultPath,
+    key: keyPath,
   };
 
   return Object.assign({}, defaults, envConnection);

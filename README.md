@@ -1,31 +1,16 @@
-## Lando SiteGround
+# Lando SiteGround
 
-A Lando plugin that adds a `siteground` recipe with `pull` and `push` commands for WordPress sites hosted on SiteGround.
+A [Lando](https://lando.dev) plugin that adds a `siteground` recipe for WordPress sites hosted on [SiteGround](https://www.siteground.com). Extends the built-in WordPress recipe with push/pull tooling powered by [procyon-cli](https://github.com/nicolasgalvez/procyon-cli).
 
-### Features
+## Installation
 
-- **`siteground` recipe** extending the stock `wordpress` recipe
-- **`lando pull`** with `-c/-d/-f` flags (code, database, files) via rsync + wp-cli over SSH
-- **`lando push`** with `-c/-d/-f` flags to push code, database, and/or files
-- **`lando sg:env:list`** discovers environments by SSHing into the server and listing `/home/<user>/www/`
-- **`lando sg:env:set`** for instructions on switching environments
-- Hook points via Lando events (`post-pull`, `post-push`)
+```bash
+git clone https://github.com/your-org/lando-siteground.git ~/.lando/plugins/lando-siteground
+cd ~/.lando/plugins/lando-siteground
+npm install
+```
 
-### SiteGround SSH
-
-SiteGround provides SSH access on **port 18765**. You'll need:
-
-1. SSH access enabled in SiteGround Site Tools > Devs > SSH Keys Manager
-2. Your SSH hostname (e.g., `your-server.siteground.biz`)
-3. Your SSH username
-
-### Environments
-
-On SiteGround, each environment is a subdirectory under `/home/<user>/www/`. The plugin auto-derives the remote path as `/home/<user>/www/<env>` from your configured `user` and `env`.
-
-Run `lando sg:env:list` to SSH into the server and discover all available environments.
-
-### Configuration
+## Configuration
 
 ```yaml
 name: my-site
@@ -33,74 +18,98 @@ recipe: siteground
 config:
   php: '8.3'
   webroot: .
-
-  # The environment directory name under /home/<user>/www/
   env: mysite.com
-
-  # SSH connection details
-  host: your-server.siteground.biz
-  user: your-ssh-username
+  host: ssh.example.sg-host.com
+  user: u1234-abcdefg
+  key: my-ssh-key
 ```
 
-The remote path is auto-derived as `/home/<user>/www/<env>`. You can override per-environment if needed:
+| Option | Description |
+|--------|-------------|
+| `env` | Environment name (directory under `/home/<user>/www/`) |
+| `host` | SSH hostname |
+| `user` | SSH username |
+| `key` | SSH key filename from `~/.ssh/` (recommended — avoids "too many auth failures") |
+| `port` | SSH port (default: `18765`) |
+| `domain` | Remote domain for search-replace (defaults to `env` value) |
+
+### Multiple Environments
+
+Define additional environments via `connection` overrides (typically in `.lando.local.yml`):
 
 ```yaml
 config:
   connection:
     staging.mysite.com:
-      path: /some/custom/path
+      path: /home/u1234/www/staging.mysite.com/public_html
+      domain: staging.mysite.com
 ```
 
-Put per-developer SSH overrides in `.lando.local.yml` (add to `.gitignore`).
+## Usage
 
-### Usage
+### Pull
 
 ```bash
-# Discover environments on the remote server
-lando sg:env:list
-
-# Pull everything from the configured environment
-lando pull
-
-# Pull only the database
-lando pull -d
-
-# Pull code and files
-lando pull -c -f
-
-# Push code
-lando push -c
-
-# Push database (requires explicit flag for safety)
-lando push -d
-
-# Push files
-lando push -f
+lando pull -d          # Pull database
+lando pull -f          # Pull files (uploads)
+lando pull -d -f       # Pull both
+lando pull             # Pull everything (default)
+lando pull -d --env staging.mysite.com  # Target a specific environment
 ```
 
-### Pull behavior
+Database pulls automatically reset local tables before import (to handle prefix mismatches) and run search-replace for domain rewriting.
 
-- **Code** (`-c`): rsync from remote, excluding uploads, cache, `.git`, `.lando.*`, and `wp-config.php`
-- **Database** (`-d`): `wp db export` on remote via SSH, then `wp db import` locally
-- **Files** (`-f`): rsync `wp-content/uploads/` from remote
-
-### Push behavior
-
-- **Code** (`-c`): rsync to remote with same exclusions as pull
-- **Database** (`-d`): `wp db export` locally, then `wp db import` on remote via SSH
-- **Files** (`-f`): rsync `wp-content/uploads/` to remote
-- Push requires at least one explicit flag (no default "push everything" for safety)
-
-### Installation
+### Push
 
 ```bash
-# From the plugin directory
-lando plugin-add /path/to/lando-siteground
+lando push -d          # Push database
+lando push -f          # Push files (uploads)
+lando push -d --env staging.mysite.com
 ```
 
-### Environment switching
+Push requires at least one explicit flag — no default "push everything" for safety.
 
-Set the target environment via:
-- `config.env` in `.lando.yml`
-- `LANDO_SG_ENV` environment variable
-- `lando sg:env:set` for instructions
+### Environment Discovery
+
+```bash
+lando sg:env:list      # SSH to server and list available environments
+lando sg:env:set       # Show instructions for switching environments
+```
+
+### Direct Procyon Access
+
+For advanced operations:
+
+```bash
+lando procyon files pull mysite.com themes
+lando procyon files pull mysite.com plugins --name my-plugin
+lando procyon files push mysite.com uploads --dry-run
+lando procyon db pull mysite.com
+```
+
+## How It Works
+
+1. Extends Lando's WordPress recipe (PHP, Apache, MySQL, wp-cli)
+2. Installs Node.js in the appserver container
+3. Mounts [procyon-cli](https://github.com/nicolasgalvez/procyon-cli) and auto-generates config from `.lando.yml`
+4. SSH from the container to SiteGround on port 18765
+
+## SiteGround SSH
+
+SiteGround provides SSH on **port 18765**. You need:
+
+1. SSH access enabled in SiteGround Site Tools > Devs > SSH Keys Manager
+2. Your SSH hostname (e.g., `ssh.example.sg-host.com`)
+3. Your SSH username
+4. Environments are subdirectories of `/home/<user>/www/`, with WordPress at `public_html/`
+
+## Development
+
+```bash
+npm test              # Unit + e2e tests (mocha)
+npx playwright test   # Browser tests (requires lando start)
+```
+
+## License
+
+GPL-3.0-or-later

@@ -19,8 +19,11 @@
     "node": ">=20"
   },
   "lando": {},
-  "dependencies": {},
+  "dependencies": {
+    "procyon-cli": "github:nicolasgalvez/procyon-cli"
+  },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "chai": "^4.5.0",
     "mocha": "^10.4.0"
   }
