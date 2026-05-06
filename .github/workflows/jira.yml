@@ -1,0 +1,22 @@
+name: Jira Integration
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  jira:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract Jira keys and post to Jira
+        uses: procyon-creative/jira-action-man@main
+        with:
+          projects: PTL
+          from: branch,title,commits,body
+          post_to_jira: true
+          jira_base_url: ${{ secrets.JIRA_BASE_URL }}
+          jira_email: ${{ secrets.JIRA_EMAIL }}
+          jira_api_token: ${{ secrets.JIRA_API_TOKEN }}
+          jira_comment_mode: replace
